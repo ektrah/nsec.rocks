@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>IncrementalHash Struct | NSec</title><meta content="Represents the state of a hash algorithm that can be incrementally updated with
+segments of data." name="description"><link href="https://nsec.rocks/docs/api/nsec.cryptography.incrementalhash" rel="canonical"><link href="/style.css" rel="stylesheet"><meta content="width=device-width, initial-scale=1" name="viewport"></head><body><header><div class="icons"><a class="icon nuget-icon" href="https://www.nuget.org/packages/NSec.Cryptography/25.4.0" title="NuGet"></a><a class="icon github-icon" href="https://github.com/ektrah/nsec" title="GitHub"></a></div><nav><ol typeof="BreadcrumbList" vocab="https://schema.org/"><li property="itemListElement" typeof="ListItem"><a href="/" property="item" typeof="WebPage"><span property="name">NSec</span></a><meta content="1" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/" property="item" typeof="WebPage"><span property="name">NSec Documentation</span></a><meta content="2" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/api/" property="item" typeof="WebPage"><span property="name">API Reference</span></a><meta content="3" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/api/nsec.cryptography" property="item" typeof="WebPage"><span property="name">NSec.Cryptography</span></a><meta content="4" property="position"></li> / <li property="itemListElement" typeof="ListItem"><span property="name">IncrementalHash</span><meta content="5" property="position"></li></ol></nav></header><main><h1>IncrementalHash Struct</h1><p>Represents the state of a hash algorithm that can be incrementally updated with
+segments of data.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">readonly</span> <span class="k">struct</span> IncrementalHash</pre><p>The type provides an &ldquo;init, update, final&rdquo; interface for hashing data: First, a
+state needs to be initialized with the hash algorithm to be used. The state can
+then be updated zero or more times with segments of data. Finalizing the state
+yields a result that is identical to the hash of the concatenated segments.</p><p><a href="/docs/api/nsec.cryptography.incrementalhash">IncrementalHash</a> instances have value-type semantics:
+Passing an instance to a method or assigning it to a variable creates a copy of
+the state.</p><h2 id="example">Example</h2><p>The following C# example shows how to compute a hash from multiple segments of
+data:</p><pre data-lang="C#"><span class="c">// select the BLAKE2b-256 algorithm</span>
+<span class="k">var</span> algorithm = HashAlgorithm.Blake2b_256;
+
+<span class="c">// initialize the state with the algorithm</span>
+IncrementalHash.Initialize(algorithm, <span class="k">out</span> <span class="k">var</span> state);
+
+<span class="c">// incrementally update the state with some data</span>
+<span class="k">var</span> lines = <span class="k">new</span>[]
+{
+    <span class="s">"It is a period of civil war.\n"</span>,
+    <span class="s">"Rebel spaceships, striking\n"</span>,
+    <span class="s">"from a hidden base, have won\n"</span>,
+    <span class="s">"their first victory against\n"</span>,
+    <span class="s">"the evil Galactic Empire.\n"</span>
+};
+<span class="k">foreach</span> (<span class="k">var</span> line <span class="k">in</span> lines)
+{
+    IncrementalHash.Update(<span class="k">ref</span> state, Encoding.UTF8.GetBytes(line));
+}
+
+<span class="c">// finalize the computation and get the result</span>
+<span class="k">var</span> hash = IncrementalHash.Finalize(<span class="k">ref</span> state);</pre><h2 id="summary">Summary</h2><nav><ul><li><a href="#properties">Properties</a><ul><li><a href="#algorithm">Algorithm</a></li></ul></li><li><a href="#static-methods">Static Methods</a><ul><li><a href="#initialize-hashalgorithm-out-incrementalhash">Initialize(HashAlgorithm, out IncrementalHash)</a></li><li><a href="#update-ref-incrementalhash-readonlyspan-byte">Update(ref IncrementalHash, ReadOnlySpan&lt;byte&gt;)</a></li><li><a href="#finalize-ref-incrementalhash">Finalize(ref IncrementalHash)</a></li><li><a href="#finalize-ref-incrementalhash-span-byte">Finalize(ref IncrementalHash, Span&lt;byte&gt;)</a></li><li><a href="#finalizeandverify-ref-incrementalhash-readonlyspan-byte">FinalizeAndVerify(ref IncrementalHash, ReadOnlySpan&lt;byte&gt;)</a></li></ul></li><li><a href="#thread-safety">Thread Safety</a></li><li><a href="#see-also">See Also</a></li></ul></nav><h2 id="properties">Properties</h2><h3 id="algorithm">Algorithm</h3><p>Gets the algorithm that was used to initialize the state.</p><pre data-lang="C#"><span class="k">public</span> HashAlgorithm? Algorithm { <span class="k">get</span>; }</pre><h4>Property Value</h4><p>An instance of the <a href="/docs/api/nsec.cryptography.hashalgorithm">HashAlgorithm</a> class, or <code>null</code> if the
+current instance has not been initialized yet or if it has been finalized.</p><h2 id="static-methods">Static Methods</h2><h3 id="initialize-hashalgorithm-out-incrementalhash">Initialize(HashAlgorithm, out IncrementalHash)</h3><p>Initializes the <a href="/docs/api/nsec.cryptography.incrementalhash">IncrementalHash</a> state with the
+specified hash algorithm.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> Initialize(
+    HashAlgorithm algorithm,
+    <span class="k">out</span> IncrementalHash state)</pre><h4>Parameters</h4><dl><dt>algorithm</dt><dd>The hash algorithm to use for computing the hash.</dd><dt>state</dt><dd>When this method returns, contains the initialized state.</dd></dl><h4>Exceptions</h4><dl><dt>ArgumentNullException</dt><dd><code>algorithm</code> is <code>null</code>.</dd></dl><h3 id="update-ref-incrementalhash-readonlyspan-byte">Update(ref IncrementalHash, ReadOnlySpan&lt;byte&gt;)</h3><p>Updates the <a href="/docs/api/nsec.cryptography.incrementalhash">IncrementalHash</a> state with the specified
+span of bytes.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> Update(
+    <span class="k">ref</span> IncrementalHash state,
+    ReadOnlySpan&lt;<span class="k">byte</span>&gt; data)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be updated with <code>data</code>.</dd><dt>data</dt><dd>A segment of the data to hash.</dd></dl><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd></dl><h3 id="finalize-ref-incrementalhash">Finalize(ref IncrementalHash)</h3><p>Completes the hash computation and returns the result as an array of bytes.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">byte</span>[] Finalize(
+    <span class="k">ref</span> IncrementalHash state)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be finalized.</dd></dl><h4>Return Value</h4><p>The computed hash.</p><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd></dl><h3 id="finalize-ref-incrementalhash-span-byte">Finalize(ref IncrementalHash, Span&lt;byte&gt;)</h3><p>Completes the hash computation and fills the specified span of bytes with the
+result.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> Finalize(
+    <span class="k">ref</span> IncrementalHash state,
+    Span&lt;<span class="k">byte</span>&gt; hash)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be finalized.</dd><dt>hash</dt><dd>The span to fill with the computed hash.</dd></dl><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd><dt>ArgumentException</dt><dd><code>hash.Length</code> is not equal to <a href="/docs/api/nsec.cryptography.hashalgorithm#hashsize">HashSize</a>.</dd></dl><h3 id="finalizeandverify-ref-incrementalhash-readonlyspan-byte">FinalizeAndVerify(ref IncrementalHash, ReadOnlySpan&lt;byte&gt;)</h3><p>Completes the hash computation and verifies that the result equals the specified
+hash.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">bool</span> FinalizeAndVerify(
+    <span class="k">ref</span> IncrementalHash state,
+    ReadOnlySpan&lt;<span class="k">byte</span>&gt; hash)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be finalized.</dd><dt>hash</dt><dd>The hash to be verified.</dd></dl><h4>Return Value</h4><p><code>true</code> if verification succeeds; otherwise, <code>false</code>.</p><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd></dl><h2 id="thread-safety">Thread Safety</h2><p>Any public static members of this type are thread safe. Any instance members are
+not guaranteed to be thread safe. As with any other type, reading and writing to
+a shared variable that contains an instance of this type must be protected by a
+lock to guarantee thread safety.</p><h2 id="see-also">See Also</h2><ul><li>API Reference<ul><li><a href="/docs/api/nsec.cryptography.hashalgorithm">HashAlgorithm Class</a></li><li><a href="/docs/api/nsec.cryptography.incrementalmac">IncrementalMac Struct</a></li></ul></li></ul></main><footer><p><a href="/license" rel="terms-of-use">&#169; 2025 Individual Contributors</a></p></footer></body></html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>NSec &#8211; Modern cryptography for .NET</title><meta content="NSec is a modern and easy-to-use cryptographic library for .NET based on libsodium." name="description"><link href="https://nsec.rocks/" rel="canonical"><link href="/style.css" rel="stylesheet"><meta content="width=device-width, initial-scale=1" name="viewport"></head><body><header><div class="icons"><a class="icon nuget-icon" href="https://www.nuget.org/packages/NSec.Cryptography/25.4.0" title="NuGet"></a><a class="icon github-icon" href="https://github.com/ektrah/nsec" title="GitHub"></a></div></header><main><h1>NSec</h1><p>NSec is a modern and easy-to-use cryptographic library for
+<a href="https://dotnet.microsoft.com/">.NET</a> based on
+<a href="https://libsodium.org/">libsodium</a>.</p><ul><li><p><strong>Modern</strong> &ndash; libsodium provides a small set of high-quality, modern
+cryptographic primitives, including X25519, Ed25519 and ChaCha20-Poly1305. NSec
+wraps these primitives in a modern .NET API based on
+<a href="https://docs.microsoft.com/en-us/archive/msdn-magazine/2017/connect/csharp-all-about-span-exploring-a-new-net-mainstay">Span&lt;T&gt;</a>.</p></li><li><p><strong>Easy-to-use</strong> &ndash; NSec wants you to fall into the &ldquo;pit of success.&rdquo; It
+provides a strongly typed data model that represents keys and shared secrets
+with specific classes rather than naked byte arrays. This avoids accidentally
+using a key with a wrong algorithm, etc. (There are still some hard problems
+where NSec isn&rsquo;t as easy-to-use as one might wish, though, such as nonce
+generation and key management.)</p></li><li><p><strong>Secure</strong> &ndash; In addition to the security provided by the cryptographic
+primitives themselves, NSec tries to make using these primitives as secure by
+default as possible. For example, all sensitive data such as keys is stored in
+libsodium&rsquo;s secure memory rather than on the managed heap and is securely erased
+when disposed.</p></li><li><p><strong>Fast</strong> &ndash; libsodium is fast, and cryptographic operations in libsodium never
+allocate memory on the heap. NSec follows libsodium&rsquo;s lead and avoids almost all
+allocations and expensive copies. Only methods that return byte arrays, keys or
+shared secrets do allocate memory and should therefore be avoided in hot paths.</p></li><li><p><strong>Agile</strong> &ndash; NSec features a simple object model with cryptographic agility in
+mind. All algorithms derive from a small set of base classes. This helps writing
+code against algorithm interfaces rather than specific algorithms, making it
+easy to switch to a different algorithm should the need arise.</p></li></ul><h2 id="example">Example</h2><p>The following C# example shows NSec can be used to sign some data with Ed25519
+and verify the signature:</p><pre data-lang="C#"><span class="c">// select the Ed25519 signature algorithm</span>
+<span class="k">var</span> algorithm = SignatureAlgorithm.Ed25519;
+
+<span class="c">// create a new key pair</span>
+<span class="k">using</span> <span class="k">var</span> key = Key.Create(algorithm);
+
+<span class="c">// generate some data to be signed</span>
+<span class="k">var</span> data = Encoding.UTF8.GetBytes(<span class="s">"Use the Force, Luke!"</span>);
+
+<span class="c">// sign the data using the private key</span>
+<span class="k">var</span> signature = algorithm.Sign(key, data);
+
+<span class="c">// verify the data using the signature and the public key</span>
+<span class="k">if</span> (algorithm.Verify(key.PublicKey, data, signature))
+{
+    <span class="c">// verified!</span>
+    ...
+}</pre><h2 id="installation">Installation</h2><pre>$ dotnet add package NSec.Cryptography --version 25.4.0</pre><p>See <a href="/docs/install">Installation</a> for prerequisites and supported platforms.</p><h2 id="documentation">Documentation</h2><table><thead><tr><th align="left">Class</th><th align="left">Algorithms</th></tr></thead><tbody><tr><td align="left"><a href="/docs/api/nsec.cryptography.aeadalgorithm">AeadAlgorithm Class</a></td><td align="left">AEGIS-128L</td></tr><tr><td align="left"></td><td align="left">AEGIS-256</td></tr><tr><td align="left"></td><td align="left">AES256-GCM</td></tr><tr><td align="left"></td><td align="left">ChaCha20-Poly1305</td></tr><tr><td align="left"></td><td align="left">XChaCha20-Poly1305</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.hashalgorithm">HashAlgorithm Class</a></td><td align="left">BLAKE2b <em>(unkeyed)</em></td></tr><tr><td align="left"></td><td align="left">SHA-256</td></tr><tr><td align="left"></td><td align="left">SHA-512</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.keyagreementalgorithm">KeyAgreementAlgorithm Class</a></td><td align="left">X25519</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.keyderivationalgorithm2">KeyDerivationAlgorithm2 Class</a></td><td align="left">HKDF-SHA-256</td></tr><tr><td align="left"></td><td align="left">HKDF-SHA-512</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.macalgorithm">MacAlgorithm Class</a></td><td align="left">BLAKE2b <em>(keyed)</em></td></tr><tr><td align="left"></td><td align="left">HMAC-SHA-256</td></tr><tr><td align="left"></td><td align="left">HMAC-SHA-512</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.passwordbasedkeyderivationalgorithm">PasswordBasedKeyDerivationAlgorithm Class</a></td><td align="left">Argon2id</td></tr><tr><td align="left"></td><td align="left">scrypt</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.signaturealgorithm">SignatureAlgorithm Class</a></td><td align="left">Ed25519</td></tr><tr><td align="left"><a href="/docs/api/nsec.cryptography.signaturealgorithm2">SignatureAlgorithm2 Class</a></td><td align="left">Ed25519ph</td></tr></tbody></table><p>See <a href="/docs/api/nsec.cryptography">API Reference</a> for more details.</p><h2 id="contributing">Contributing</h2><p>NSec is an open source project.
+Contributions to the code or documentation are highly welcome.</p><p>The development of NSec takes place in its
+<a href="https://github.com/ektrah/nsec">GitHub repository</a>.
+The easiest way to contribute is by
+<a href="https://github.com/ektrah/nsec/pulls">submitting a pull request</a>.
+Please ask before making a significant pull request (e.g., implementing any new
+features).
+If you&rsquo;ve found a problem with NSec, please
+<a href="https://github.com/ektrah/nsec/issues">open an issue</a>.
+Feature requests and questions are welcome, too.</p><h2 id="note">Note</h2><p><em>&ldquo;Cryptography is not magic pixie dust that you can sprinkle on a system to make
+it secure.&rdquo;</em></p><p>NSec aims to provide careful abstractions to make the work with modern
+cryptographic primitives relatively easy and pain-free. However, the primitives
+are not very useful by themselves and need to be combined into higher-level
+security protocols (such as TLS or CBOR Web Token). Don&rsquo;t roll your own security
+protocols.</p><h2 id="license">License</h2><p>NSec is licensed under the <a href="/license">MIT license</a>.</p></main><footer><p><a href="/license" rel="terms-of-use">&#169; 2025 Individual Contributors</a></p></footer></body></html>

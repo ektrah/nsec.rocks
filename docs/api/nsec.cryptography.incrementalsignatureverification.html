@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>IncrementalSignatureVerification Struct | NSec</title><meta content="Represents the state of a signature verification algorithm that can be incrementally updated with
+segments of data." name="description"><link href="https://nsec.rocks/docs/api/nsec.cryptography.incrementalsignatureverification" rel="canonical"><link href="/style.css" rel="stylesheet"><meta content="width=device-width, initial-scale=1" name="viewport"></head><body><header><div class="icons"><a class="icon nuget-icon" href="https://www.nuget.org/packages/NSec.Cryptography/25.4.0" title="NuGet"></a><a class="icon github-icon" href="https://github.com/ektrah/nsec" title="GitHub"></a></div><nav><ol typeof="BreadcrumbList" vocab="https://schema.org/"><li property="itemListElement" typeof="ListItem"><a href="/" property="item" typeof="WebPage"><span property="name">NSec</span></a><meta content="1" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/" property="item" typeof="WebPage"><span property="name">NSec Documentation</span></a><meta content="2" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/api/" property="item" typeof="WebPage"><span property="name">API Reference</span></a><meta content="3" property="position"></li> / <li property="itemListElement" typeof="ListItem"><a href="/docs/api/nsec.cryptography" property="item" typeof="WebPage"><span property="name">NSec.Cryptography</span></a><meta content="4" property="position"></li> / <li property="itemListElement" typeof="ListItem"><span property="name">IncrementalSignatureVerification</span><meta content="5" property="position"></li></ol></nav></header><main><h1>IncrementalSignatureVerification Struct</h1><p>Represents the state of a signature verification algorithm that can be incrementally updated with
+segments of data.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">readonly</span> <span class="k">struct</span> IncrementalSignatureVerification</pre><p>The type provides an &ldquo;init, update, final&rdquo; interface for verifying data given a
+public key and a signature. First, a state needs to be initialized with the
+public key. The state can then be updated zero or more times with segments of
+data. Finalizing the state gives a result as to whether verification of the
+concatenated segments was successful.</p><div class="admonition note"><p class="admonition-title">Note</p><p><a href="/docs/api/nsec.cryptography.incrementalsignatureverification">IncrementalSignatureVerification</a>
+instances have value-type semantics: Passing an instance to a method or
+assigning it to a variable creates a copy of the state. It is therefore
+recommended to always pass instances using <code>ref</code>, <code>in</code>, or <code>out</code>.</p></div><h2 id="example">Example</h2><p>The following C# example shows how to verify multiple segments of data given a
+public key and a signature:</p><pre data-lang="C#"><span class="c">// define some data to be verified</span>
+<span class="k">var</span> lines = <span class="k">new</span>[]
+{
+    <span class="s">"Luke Skywalker has returned to\n"</span>,
+    <span class="s">"his home planet of Tatooine in\n"</span>,
+    <span class="s">"an attempt to rescue his\n"</span>,
+    <span class="s">"friend Han Solo from the\n"</span>,
+    <span class="s">"clutches of the vile gangster\n"</span>,
+    <span class="s">"Jabba the Hutt.\n"</span>,
+};
+
+<span class="c">// select the Ed25519ph algorithm</span>
+<span class="k">var</span> algorithm = SignatureAlgorithm.Ed25519ph;
+
+<span class="c">// obtain the public key</span>
+<span class="k">var</span> publicKey = ...
+
+<span class="c">// obtain the signature</span>
+<span class="k">var</span> signature = ...
+
+<span class="c">// initialize the state with the public key</span>
+IncrementalSignatureVerification.Initialize(publicKey, <span class="k">out</span> <span class="k">var</span> state);
+
+<span class="c">// incrementally update the state with the data</span>
+<span class="k">foreach</span> (<span class="k">var</span> line <span class="k">in</span> lines)
+{
+    IncrementalSignatureVerification.Update(<span class="k">ref</span> state, Encoding.UTF8.GetBytes(line));
+}
+
+<span class="c">// verify the data using the signature</span>
+<span class="k">if</span> (IncrementalSignatureVerification.FinalizeAndVerify(<span class="k">ref</span> state, signature))
+{
+    <span class="c">// verified!</span>
+    ...
+}</pre><h2 id="summary">Summary</h2><nav><ul><li><a href="#properties">Properties</a><ul><li><a href="#algorithm">Algorithm</a></li></ul></li><li><a href="#static-methods">Static Methods</a><ul><li><a href="#initialize-publickey-out-incrementalsignatureverification">Initialize(PublicKey, out IncrementalSignatureVerification)</a></li><li><a href="#update-ref-incrementalsignatureverification-readonlyspan-byte">Update(ref IncrementalSignatureVerification, ReadOnlySpan&lt;byte&gt;)</a></li><li><a href="#finalizeandverify-ref-incrementalsignatureverification-readonlyspan-byte">FinalizeAndVerify(ref IncrementalSignatureVerification, ReadOnlySpan&lt;byte&gt;)</a></li></ul></li><li><a href="#thread-safety">Thread Safety</a></li><li><a href="#see-also">See Also</a></li></ul></nav><h2 id="properties">Properties</h2><h3 id="algorithm">Algorithm</h3><p>Gets the algorithm that was used to initialize the state.</p><pre data-lang="C#"><span class="k">public</span> SignatureAlgorithm2? Algorithm { <span class="k">get</span>; }</pre><h4>Property Value</h4><p>An instance of the <a href="/docs/api/nsec.cryptography.signaturealgorithm2">SignatureAlgorithm2</a> class, or <code>null</code> if the
+current instance has not been initialized yet or if it has been finalized.</p><h2 id="static-methods">Static Methods</h2><h3 id="initialize-publickey-out-incrementalsignatureverification">Initialize(PublicKey, out IncrementalSignatureVerification)</h3><p>Initializes the
+<a href="/docs/api/nsec.cryptography.incrementalsignatureverification">IncrementalSignatureVerification</a>
+state with the specified public key.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> Initialize(
+    PublicKey publicKey,
+    <span class="k">out</span> IncrementalSignatureVerification state)</pre><h4>Parameters</h4><dl><dt>publicKey</dt><dd>The public key to use for verifying the data.</dd><dt>state</dt><dd>When this method returns, contains the initialized state.</dd></dl><h4>Exceptions</h4><dl><dt>ArgumentNullException</dt><dd><code>publicKey</code> is <code>null</code>.</dd><dt>ArgumentException</dt><dd><code>publicKey.Algorithm</code> is not an instance of the
+<a href="/docs/api/nsec.cryptography.signaturealgorithm2">SignatureAlgorithm2</a> class.</dd></dl><h3 id="update-ref-incrementalsignatureverification-readonlyspan-byte">Update(ref IncrementalSignatureVerification, ReadOnlySpan&lt;byte&gt;)</h3><p>Updates the <a href="/docs/api/nsec.cryptography.incrementalsignatureverification">IncrementalSignatureVerification</a> state with the specified
+span of bytes.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">void</span> Update(
+    <span class="k">ref</span> IncrementalSignatureVerification state,
+    ReadOnlySpan&lt;<span class="k">byte</span>&gt; data)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be updated with <code>data</code>.</dd><dt>data</dt><dd>A segment of the data to verify.</dd></dl><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd></dl><h3 id="finalizeandverify-ref-incrementalsignatureverification-readonlyspan-byte">FinalizeAndVerify(ref IncrementalSignatureVerification, ReadOnlySpan&lt;byte&gt;)</h3><p>Completes the verification.</p><pre data-lang="C#"><span class="k">public</span> <span class="k">static</span> <span class="k">bool</span> FinalizeAndVerify(
+    <span class="k">ref</span> IncrementalSignatureVerification state,
+    ReadOnlySpan&lt;<span class="k">byte</span>&gt; signature)</pre><h4>Parameters</h4><dl><dt>state</dt><dd>The state to be finalized.</dd><dt>signature</dt><dd>The signature of the data to verify.</dd></dl><h4>Return Value</h4><p><code>true</code> if verification succeeds; otherwise, <code>false</code>.</p><h4>Exceptions</h4><dl><dt>InvalidOperationException</dt><dd><code>state</code> has not been initialized yet or has already been finalized.</dd></dl><h2 id="thread-safety">Thread Safety</h2><p>Any public static members of this type are thread safe. Any instance members are
+not guaranteed to be thread safe. As with any other type, reading and writing to
+a shared variable that contains an instance of this type must be protected by a
+lock to guarantee thread safety.</p><h2 id="see-also">See Also</h2><ul><li>API Reference<ul><li><a href="/docs/api/nsec.cryptography.incrementalsignature">IncrementalSignature Struct</a></li><li><a href="/docs/api/nsec.cryptography.publickey">PublicKey Class</a></li><li><a href="/docs/api/nsec.cryptography.signaturealgorithm2">SignatureAlgorithm2 Class</a></li></ul></li></ul></main><footer><p><a href="/license" rel="terms-of-use">&#169; 2025 Individual Contributors</a></p></footer></body></html>
